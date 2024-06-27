@@ -6,6 +6,7 @@ from pyluba.proto import luba_msg
 
 from .const import DOMAIN
 from .coordinator import MammotionDataUpdateCoordinator
+from pyluba.utility.device_type import DeviceType
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,7 +26,10 @@ class MammotionBaseEntity(CoordinatorEntity[MammotionDataUpdateCoordinator]):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, device_name)},
             manufacturer="Mammotion",
-            serial_number=coordinator.device.luba_msg.net.toapp_wifi_iot_status.productkey,
+            serial_number=device_name.split('-', 1)[-1],
+            # sw_version=coordinator.device.luba_msg.net.toapp_devinfo_resp.resp_ids.get(0, {}).get('info', "Loading..."),
+            # sw_version=coordinator.device.luba_msg.net.toapp_devinfo_resp.resp_ids[0].info if coordinator.device.luba_msg.net.toapp_devinfo_resp.resp_ids else "Loading...",
+            model=DeviceType.value_of_str(device_name, coordinator.device.luba_msg.net.toapp_wifi_iot_status.productkey).get_model(),
             name=device_name,
             suggested_area="Garden",
         )
